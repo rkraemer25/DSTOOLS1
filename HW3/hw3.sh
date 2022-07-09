@@ -14,28 +14,26 @@ echo  "############### Statistics for file  ############### "
 
 # Q1(.5 point) write  positional parameter after echo to print its value. It is the file url used by curl command.
 
-echo 
-
+echo $1
 
 # sort based on multiple columns
 #Q2(2= 1+1 for right sorting of each columns). Write last sort command options so that first column(frequencies) is
 #sorted via numerical values and
 #second column is sorted by reverse alphabetical order
 
-sorted_words=`curl -s $1|tr [A-Z] [a-z]|grep -oE "\w+"|sort|uniq -c|sort  `
-
+sorted_words=`curl -s $1|tr [A-Z] [a-z]|grep -oE "\w+"|sort|uniq -c|sort -k1,1nr -k2,2r`
 
 total_uniq_words=`echo "$sorted_words"|wc -l`
 echo "Total number of words = $total_uniq_words"
 
-
 #Q3(1=.5+.5 points ) Complete the code in the following echo statements to calculate the  Min and Max frequency with respective word
 #Hint:  Use sorted_words variable, head, tail and command susbtitution
 
-echo "Min frequency and word   "
-echo "Max frequency and word  "
+min_freq=`echo "$sorted_words"|tail -n 1`
+max_freq=`echo "$sorted_words"|head -n 1`
 
-
+echo "Min frequency and word = $min_freq"
+echo "Max frequency and word = $max_freq"
 
 #Median calculation
 
@@ -45,10 +43,20 @@ echo "Max frequency and word  "
 #Code must check even or odd  number of unique words. For even case median is the mean of middle two values,
 #for the odd case, it is middle value in sorted items.
 
+declare -a sorted_words=(`curl -s $1|tr [A-Z] [a-z]|grep -oE "\w+"|sort|uniq -c|sort -nr | awk '{print $1}'`)
+declare -i x=$total_uniq_words%2
 
+if [ $x -gt  0 ]
+    then
+      ((mid= $total_uniq_words/2))
+      ((median= ${sorted_words[mid]}))
 
-
-
+else
+      ((mid= $total_uniq_words/2))
+      ((median=${sorted_words[mid]}+${sorted_words[mid-1]}/2))
+fi
+  
+echo "Median frequency = $median"
 
 # Mean value calculation
 #Q5(1 point) Using for loop, write code to update count variable: total number of unique words
@@ -56,12 +64,18 @@ echo "Max frequency and word  "
 total_freq=0
 count=0
 
+for i in $(seq 1 $total_uniq_words)
+   do
+     ((count++))
+   done
 
+for i in $(seq 1 $total_uniq_words)
+   do
+    ((total_freq=total_freq+sorted_words[i]))
+   done
 
 #Q7(1 point) Write code to calculate mean frequency value based on total_freq and count
-mean=
-
-
+mean=$((total_freq/count))
 
 echo "Sum of frequencies = $total_freq"
 echo "Total unique words = $count"
@@ -69,9 +83,8 @@ echo "Mean frequency using integer arithmetics = $mean"
 
 #Q8(1 point) Using bc -l command, calculate mean value.
 # Write your code after = 
-echo "Mean frequency using floating point arithemetics =  "
-
-
+fp_mean=`echo "$total_freq/$count"|bc -l`
+echo "Mean frequency using floating point arithemetics = $fp_mean"
 
 # Q9 (1 point) Complete lazy_commit bash function(look for how to write bash functions) to add, commit and push to the remote master.
 # In the command prompt, this function is used as
@@ -92,6 +105,7 @@ echo "Mean frequency using floating point arithemetics =  "
 # One can type lazy_commit file1 file2 ... filen  commit_message
 # and file will be added , commited and pushed to remote master using one lazy_commit command.
 function lazy_commit() {
-
-
+  git add . &&
+  git commit -m "$2" &&
+  git push origin main
     }
