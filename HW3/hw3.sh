@@ -47,16 +47,30 @@ declare -a sorted_words=(`curl -s $1|tr [A-Z] [a-z]|grep -oE "\w+"|sort|uniq -c|
 declare -i x=$total_uniq_words%2
 
 if [ $x -gt  0 ]
-    then
-      ((mid= $total_uniq_words/2))
-      ((median= ${sorted_words[mid]}))
+   then
+     ((mid= $total_uniq_words/2))
+     ((median= ${sorted_words[mid]}))
 
 else
-      ((mid= $total_uniq_words/2))
-      ((median=${sorted_words[mid]}+${sorted_words[mid-1]}/2))
+     ((mid= $total_uniq_words/2))
+     ((median=${sorted_words[mid]}+${sorted_words[mid-1]}/2))
 fi
   
 echo "Median frequency = $median"
+
+# declare -a sorted_words_counts=(`curl -s $1|tr [A-Z] [a-z]|grep -oE "\w+"|sort|uniq -c|sort -nr | awk '{print $1}'`)
+
+# if [ $((total_uniq_words%2)) -eq  0 ]
+# then
+#   ((mid=total_uniq_words/2))
+#   ((median=(sorted_words_counts[mid]+sorted_words_counts[mid-1])/2))
+# else
+#   ((mid= total_uniq_words/2))
+#   ((median=sorted_words_counts[mid]))
+# fi
+
+# echo "Median frequency= $median"
+
 
 # Mean value calculation
 #Q5(1 point) Using for loop, write code to update count variable: total number of unique words
@@ -69,7 +83,7 @@ for i in $(seq 1 $total_uniq_words)
      ((count++))
    done
 
-for i in $(seq 1 $total_uniq_words)
+for i in $(seq 0 $total_uniq_words)
    do
     ((total_freq=total_freq+sorted_words[i]))
    done
@@ -105,7 +119,9 @@ echo "Mean frequency using floating point arithemetics = $fp_mean"
 # One can type lazy_commit file1 file2 ... filen  commit_message
 # and file will be added , commited and pushed to remote master using one lazy_commit command.
 function lazy_commit() {
-  git add . &&
-  git commit -m "$2" &&
-  git push origin main
+  git add --all
+  git commit -m "lzy" 
+  git push
     }
+    
+lazy_commit
